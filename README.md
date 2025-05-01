@@ -1,6 +1,6 @@
 # 🏥 Hospital Management System (HMS)
 
-A full-stack hospital management system designed for scalability, security, and real-world deployment. Built with Vue.js, Django, and PostgreSQL, the platform aims to streamline patient care, medical staff operations, appointment scheduling, and hospital resource management.
+A full-stack hospital management system designed for scalability, security, and deployment. Built with Vue.js, Django, and PostgreSQL, the platform aims to streamline patient care, medical staff operations, appointment scheduling, and hospital resource management.
 
 ---
 
