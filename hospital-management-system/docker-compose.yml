@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: hms_postgres
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - hms_network
+
+  django:
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    container_name: hms_django
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+      - ./backend/staticfiles:/app/staticfiles
+      - ./backend/media:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - hms_network
+
+  vue:
+    build:
+      context: .
+      dockerfile: docker/vue/Dockerfile
+    container_name: hms_vue
+    command: npm run dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    networks:
+      - hms_network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: hms_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - django
+      - vue
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./backend/staticfiles:/var/www/static
+      - ./backend/media:/var/www/media
+    networks:
+      - hms_network
+
+volumes:
+  postgres_data:
+
+networks:
+  hms_network:
+    driver: bridge
